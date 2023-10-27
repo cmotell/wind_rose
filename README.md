@@ -15,6 +15,19 @@ to convert Grib files to Netcdf), and they will contain the U and V wind compone
 as well as either Geopotential (from which Geopotential Height is derived), or
 actual heights of the U and V wind components.
 
+# Acknowledgements
+
+Often in my code, you will see a URL link where I got the hint to solve
+what was for me, a more difficult coding solution. 
+
+Here, we are going to be looking at a variety of python
+program techniques to display stratospheric winds. In the first example, 
+I highlight one of my wind rose solutions. The code for wind roses came from
+a combination of what I saw others do, modified for my needs. Unfortunately,
+I don't remember where I got some of my wind rose ideas. But I do know I liked
+the work of https://github.com/marcia-marques/wind-rose; however, I needed to
+modify her work to suite my needs.
+
 ## Example 1: demonstrations the use of wind roses 
 
 Run the program *wind_rose.py* to show wind roses. Let's say we have two following
@@ -71,6 +84,13 @@ Lastly, modify the configuration as follows:
 Resulting in the following image:
 
 <img src="./img/Hilo_Radiosonde_sigWinds_on_Sep_2023_Day_1.png"/>
+
+## Example 2: demonstration of a time series of upper wind data for one month
+
+(Working on ... coming soon) Here in this example site we will to a cross-sectional time series for specified 
+location for a given month. Here we make the assumption that all data consist of
+a single month of data (could be easily modified using techique in Example 1
+to display as many images as there our months of data)
 
 # Appendix
 
@@ -129,7 +149,7 @@ selecting your site, like Hilo as shown below:
 
 The filetype produced is "cdf" but actually "nc", and this file will contain
 the data we want to analyze. Note, if you want to see some of the contents in
-radiosonde data, select a text format and visually inspect the data.
+radiosonde data, select a text format and visually inspect the data.**
 
 
 
