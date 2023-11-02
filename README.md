@@ -85,13 +85,45 @@ Resulting in the following image:
 
 <img src="./img/Hilo_Radiosonde_sigWinds_on_Sep_2023_Day_1.png"/>
 
-## Example 2: demonstration of a time series of upper wind data for one month
+## Example 2: Demonstration of a time series of upper wind data for one month
 
-(Working on ... coming soon) Here in this example site we will to a cross-sectional time series for specified 
+Here in this example site we will to a cross-sectional time series for specified 
 location for a given month. Here we make the assumption that all data consist of
 a single month of data (could be easily modified using techique in Example 1
-to display as many images as there our months of data)
+to display as many images as there our months of data).
 
+### Example 2.1: Demonstrate ERA5 Reanalysis Winds in a Monthly Cross Sectional
+
+First do a data pull from Copernicus
+(https://cds.climate.copernicus.eu/cdsapp#!/dataset/reanalysis-era5-pressure-levels?tab=overview)
+
+Here to get data every 6 hours for month we did the following (see appendix for further information
+on data pulls from the ECMWF web site)
+
+<img src="./img/month_of_data.png"/>
+
+Now run *cross_section.py* with following options:
+
+<img src="./img/netcdf_conf_cross.png"/>
+
+The program will display the plot below and also ask you if you want to continue? 
+<b>We put this pause in 
+the program because when you view a matplotlib image in the plot command window using either 
+fig.show() or plt.show() you can stretch the image to get the exact aspect ratio you want and then
+copy this image.</b>
+
+
+<img src="./img/cross_section_n.png"/>
+
+### Example 2.2: Demonstration Mandatory Radiosonde Winds for Same Period
+
+First, grab one month of September 2023 radiosonde data following the instructions. For example,
+
+<img src="./img/sound_pull_month.png"/>
+
+Assumed the filename in the command parameters below and set the switch option = m, we have
+
+(working on finishing this example)
 # Appendix
 
 
