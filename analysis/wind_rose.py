@@ -52,7 +52,8 @@
 Author: cem
 Version: 1.0 28-January 2022
         2.0 12-August-2023 (added ability to write files to csv) with summary stats
-        2.1 09-September-2023 (removed csv file writes for simplicity
+        2.1 09-September-2023 (removed csv file writes for simplicity)
+        2.1.1 09-November-2023 (added some documentation highlight binning)
 
 see also:
 
@@ -72,8 +73,7 @@ matplotlib.use('Qt5Agg')  # stops figure from hanging when plotted from pycharm
 import matplotlib.pyplot as plt
 from matplotlib import colors as mcolors
 from matplotlib.gridspec import GridSpec
-
-import pathlib
+#import pathlib
 from datetime import datetime
 import re
 import time
@@ -81,12 +81,9 @@ import metpy.calc
 
 #local libraries
 import build_radiosonde as br
+
 import logging
 logging.basicConfig(level=logging.WARNING)
-
-
-
-
 
 
 def firstNan(lists):
@@ -294,7 +291,7 @@ def dual_wind_rose(fig, df1, df2, kft):
     bin_center_pt = bins + increment_per_bin
     bin_center_pt_radians = bin_center_pt * deg2rad
     theta_angles = bin_center_pt_radians[:-1]
-    x = 360 - (180 / nbins)  # anything greater needs to shifted to fit into bins
+    quadrant0_threshold = 360 - (180 / nbins)  # anything greater needs to shifted to fit into bins
     angle_size = (2 * np.pi / nbins) - 0.02
     # width = angle_size
 
@@ -311,7 +308,7 @@ def dual_wind_rose(fig, df1, df2, kft):
     slice = pi / 9
     for i in range(len(df['wd'])):
         wspd = df.loc[i, ('ws')]
-        if x <= df.loc[i, ('wd')] <= 360:
+        if quadrant0_threshold <= df.loc[i, ('wd')] <= 360:
             df.loc[i, ('wd')] = df.loc[i, ('wd')] - 360
         # print(f"{i}: {df.loc[i, ('wd')]}, {df.loc[i, ('ws')]}")
         n, _ = np.histogram(df.loc[i, ('wd')], bins=bins)
@@ -355,7 +352,7 @@ def dual_wind_rose(fig, df1, df2, kft):
     width = []
     for i in range(len(df['wd'])):
         wspd = df.loc[i, ('ws')]
-        if x <= df.loc[i, ('wd')] <= 360:
+        if quadrant0_threshold <= df.loc[i, ('wd')] <= 360:
             df.loc[i, ('wd')] = df.loc[i, ('wd')] - 360
         # print(f"{i}: {df.loc[i, ('wd')]}, {df.loc[i, ('ws')]}")
         n, _ = np.histogram(df.loc[i, ('wd')], bins=bins)
@@ -454,7 +451,7 @@ def dual_wind_rose_sigW(fig, df1, df2):
     bin_center_pt = bins + increment_per_bin
     bin_center_pt_radians = bin_center_pt * deg2rad
     theta_angles = bin_center_pt_radians[:-1]
-    x = 360 - (180 / nbins)  # anything greater needs to shifted to fit into bins
+    quadrant0_threshold = 360 - (180 / nbins)  # anything greater needs to shifted to fit into bins
     angle_size = (2 * np.pi / nbins) - 0.02
     # width = angle_size
 
@@ -470,9 +467,9 @@ def dual_wind_rose_sigW(fig, df1, df2):
     slice = pi / 9
     for i in range(len(df['wd'])):
         wspd = df.loc[i, ('ws')]
-        if x <= df.loc[i, ('wd')] <= 360:
+        if quadrant0_threshold <= df.loc[i, ('wd')] <= 360:
             df.loc[i, ('wd')] = df.loc[i, ('wd')] - 360
-        n, _ = np.histogram(df.loc[i, ('wd')], bins=bins)
+        n, _ = np.histogram(df.loc[i, ('wd')], bins=bins)   # use numpy's histogram to bin wind observations
         bin_index = n.argmax()
         df.loc[i, ('bin')] = bin_index
         df.loc[i, ('theta')] = theta_angles[bin_index]
@@ -512,7 +509,7 @@ def dual_wind_rose_sigW(fig, df1, df2):
     width = []
     for i in range(len(df['wd'])):
         wspd = df.loc[i, ('ws')]
-        if x <= df.loc[i, ('wd')] <= 360:
+        if quadrant0_threshold <= df.loc[i, ('wd')] <= 360:
             df.loc[i, ('wd')] = df.loc[i, ('wd')] - 360
         # print(f"{i}: {df.loc[i, ('wd')]}, {df.loc[i, ('ws')]}")
         n, _ = np.histogram(df.loc[i, ('wd')], bins=bins)
@@ -851,7 +848,7 @@ def get_raob_df(plot_num, ws, wd, pres, hgt):
     length = min(length_wd, length_ws, length_pres, length_hgt)
 
     nbins = 16
-    x = 360 - (180 / nbins)
+    quadrant0_threshold = 360 - (180 / nbins)
 
     if length == 0:
         row0Bad = True
@@ -894,7 +891,7 @@ def get_raob_df(plot_num, ws, wd, pres, hgt):
             beg_level = level
 
         spd = ws[col]
-        if x <= wd[col] <= 360:
+        if quadrant0_threshold <= wd[col] <= 360:
             dir = wd[col] - 360.0  # here we remap to different wind direction coordinates
         else:
             dir = wd[col]
@@ -926,46 +923,6 @@ def get_raob_df(plot_num, ws, wd, pres, hgt):
             print("No suitable data found today")
 
     return df, subplot_title, n_calm
-
-
-def xxget_theta(df):
-    '''
-    Gets the polar bar theta values for plotting
-    @param df:
-    @return:
-    '''
-
-    nbins = 16
-    deg2rad = pi / 180.0
-    # Fixing random state for reproducibility
-    bins = np.arange(- (180 / nbins), 360 + (180 / nbins), 360 / nbins)
-    bins_in_radians = bins * deg2rad
-    increment_per_bin = (360 / nbins) * 0.5
-    bin_center_pt = bins + increment_per_bin
-    bin_center_pt_radians = bin_center_pt * deg2rad
-    theta_angles = bin_center_pt_radians[:-1]
-    x = 360 - (180 / nbins)
-
-    calm = []
-    width = []
-    for i in range(len(df['wd'])):
-        wspd = df.loc[i, ('ws')]
-        if x <= df.loc[i, ('wd')] <= 360:
-            df.loc[i, ('wd')] = df.loc[i, ('wd')] - 360
-        # print(f"{i}: {df.loc[i, ('wd')]}, {df.loc[i, ('ws')]}")
-        n, _ = np.histogram(df.loc[i, ('wd')], bins=bins)
-        bin_index = n.argmax()
-        df.loc[i, ('bin')] = bin_index
-        df.loc[i, ('theta')] = theta_angles[bin_index]
-        if wspd < 5.0:
-            calm.append(1)
-            width.append(2 * pi)
-            df.loc[i, ('ws')] = 5
-        else:
-            calm.append(0)
-            width.append(slice)
-
-    return df, calm, width
 
 
 def process_file(infile, option, output_dir, title):
@@ -1041,36 +998,6 @@ def process_file(infile, option, output_dir, title):
     print(f"Finished runing wind_rose with option {option} using file {infile}")
 
 
-def reduce_time(ds, size):
-    '''
-    Reduce or get rid of the zulu times we don't want. For example, radiosondes can be launched
-    at 01Z or anything other random times. Also, when storms around, often launched at 06Z and 18Z
-    but we only want 00Z and 12Z radiosonde data
-    :param ds:
-    :param size:
-    :return: ds: with only times 00Z and 12Z returned
-    '''
-    date_time = np.empty(size, dtype=object)
-    # store the strings separate from xarray otherwise get indexing problem. Since
-    # once we remove a dimension variable with our drop, our size of time decreases
-    for k in range(size):
-        date_time[k] = ds['time'][k].values
-
-    hr_test = ["00", "12"]
-    for k in range(size):
-        dtString = str(date_time[k]).split('T')[1]
-        hr = dtString[0:2]
-        hr_index1 = hr.find(hr_test[0])
-        hr_index2 = hr.find(hr_test[1])
-        if hr_index1 == 0 or hr_index2 == 0:
-            bad_hour = False
-        else:
-            bad_hour = True
-
-        if bad_hour:
-            ds = ds.drop_sel(time=date_time[k])
-
-    return ds
 
 
 def plt_0012Z_windrose(ds, title, output_dir):
@@ -1091,7 +1018,6 @@ def plt_0012Z_windrose(ds, title, output_dir):
     # print(f"wind speed: {ws}")
 
     nbins = 16
-    x = 360 - (180 / nbins)
     levels = ds['level'].values
     nlevels = len(levels)
 
@@ -1107,9 +1033,10 @@ def plt_0012Z_windrose(ds, title, output_dir):
     frames2 = []
 
     row = 0  # tau 00Z
+    quadrant0_threshold = 360 - (180 / nbins)
     for col in range(0, nlevels):
         spd = ws[row][col]  # should probably delete this don't see why I have this
-        if x <= wd[row][col] <= 360:
+        if quadrant0_threshold <= wd[row][col] <= 360:
             dir = wd[row][col] - 360.0  # here we remap to different wind direction coordinates
         else:
             dir = wd[row][col]
@@ -1122,7 +1049,7 @@ def plt_0012Z_windrose(ds, title, output_dir):
     row = 1  # tau 12Z
     for col in range(0, nlevels):
         spd = ws[row][col]  # should probably delete this don't see why I have this
-        if x <= wd[row][col] <= 360:
+        if quadrant0_threshold <= wd[row][col] <= 360:
             dir = wd[row][col] - 360.0  # here we remap to different wind direction coordinates
         else:
             dir = wd[row][col]
@@ -1134,6 +1061,7 @@ def plt_0012Z_windrose(ds, title, output_dir):
     # https://stackoverflow.com/questions/72657415/fix-futurewarning-related-to-the-pandas-append-function
     df2 = pd.concat([df2, pd.DataFrame(frames2)], axis=0, ignore_index=True)
 
+    # Here we use numpy's histogram program to bin wind observations into 16 quadrants
     bins = np.arange(- (180 / nbins), 360 + (180 / nbins), 360 / nbins)
 
     n1, bins = np.histogram(df1.wd, bins=bins)
@@ -1174,7 +1102,6 @@ def plt_0012Z_windrose(ds, title, output_dir):
 
     logging.info("Finished plotting wind roses at each pressure level")
 
-    calm = np.sum(n_calm)
     calm1 = np.sum(n_calm1)
     calm2 = np.sum(n_calm2)
 
@@ -1187,13 +1114,9 @@ def plt_0012Z_windrose(ds, title, output_dir):
                      textcoords='offset points',
                      size=8, ha='center', va='bottom')
     show_calm(ax1, ax2, calm1, calm2)
+
     filestr = title.replace(",", "")
     filestr = filestr.replace(" ", "_") + '.png'
-
-    # use lines below to just save in current directory
-    #current = pathlib.Path.cwd().parent
-    #current_str = current.__str__()
-    #filename = current_str + "\\img\\" + filestr
     filename = output_dir + filestr
     fig.show()
     plt.savefig(filename)
@@ -1241,7 +1164,7 @@ def plt_raob(ds, switch, title, output):
         return
 
     nbins = 16
-    x = 360 - (180 / nbins)
+    quadrant0_threshold = 360 - (180 / nbins)
 
     bins = np.arange(- (180 / nbins), 360 + (180 / nbins), 360 / nbins)
 
@@ -1282,6 +1205,39 @@ def plt_raob(ds, switch, title, output):
     plt.savefig(filename)
     print(f"Saving an image file with name: {filename}")
     plt.close()
+
+
+
+def reduce_time(ds, size):
+    '''
+    Reduce or get rid of the zulu times we don't want. For example, radiosondes can be launched
+    at 01Z or anything other random times. Also, when storms around, often launched at 06Z and 18Z
+    but we only want 00Z and 12Z radiosonde data
+    :param ds:
+    :param size:
+    :return: ds: with only times 00Z and 12Z returned
+    '''
+    date_time = np.empty(size, dtype=object)
+    # store the strings separate from xarray otherwise get indexing problem. Since
+    # once we remove a dimension variable with our drop, our size of time decreases
+    for k in range(size):
+        date_time[k] = ds['time'][k].values
+
+    hr_test = ["00", "12"]
+    for k in range(size):
+        dtString = str(date_time[k]).split('T')[1]
+        hr = dtString[0:2]
+        hr_index1 = hr.find(hr_test[0])
+        hr_index2 = hr.find(hr_test[1])
+        if hr_index1 == 0 or hr_index2 == 0:
+            bad_hour = False
+        else:
+            bad_hour = True
+
+        if bad_hour:
+            ds = ds.drop_sel(time=date_time[k])
+
+    return ds
 
 
 def show_calm(ax1, ax2, n_calm1, n_calm2):
