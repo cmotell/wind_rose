@@ -15,6 +15,8 @@ to convert Grib files to Netcdf), and they will contain the U and V wind compone
 as well as either Geopotential (from which Geopotential Height is derived), or
 actual heights of the U and V wind components.
 
+Lastly, the code for creating these plots are stored in the *analysis* folder.,
+
 # Acknowledgements
 
 Often in my code, you will see a URL link where I got the hint to solve
@@ -29,6 +31,19 @@ the work of https://github.com/marcia-marques/wind-rose; however, I needed to
 modify her work to suite my needs.
 
 ## Example 1: demonstrations the use of wind roses 
+
+
+In the example 1 series we need to bin the wind data into quadrants. We could of done
+any number of wind quadrants say from 8  to 32, but we use 16 quadrants. The code to do
+binning follows something like what is shown in the figure below:
+
+<img src="./img/binning.png"/>
+
+Here you see that our bins for quadrant 0 go from -11.25 to 11.25 degrees, then
+ever 22.5 degrees (360/16). Lastly, we use *np.histogram* to do the actually binning.
+See how *np.histogram* works to understand what is going on.
+
+-----------------------------------------
 
 Run the program *wind_rose.py* to show wind roses. Let's say we have two following
 datasets: *hilo_sep2023.nc*, *raob_hilo_sep2023.cdf*.
@@ -62,6 +77,10 @@ between 150mb and 10mb. Run *wind_rose.py* with following command parameters:
 This will produce the following image:
 
 <img src="./img/Hilo_ERA5_Wind_for_Sep_2023_Day_1.png"/>
+
+<b>Note, I look at the image in the Python image console. This allows me
+to stretch the aspect ratio of the image to the exact size I want</b>, then
+save from there.
 
 ### 1b. Radiosonde at the Mandatory Pressure Levels
 
