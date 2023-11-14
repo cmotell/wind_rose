@@ -116,8 +116,8 @@ def cycle_model(ds, title, output_dir):
     '''
 
     # need a global variables to store wind speeds between calls
-    global ns_winds
-    ns_winds = np.zeros((16, 4), dtype=np.float32)
+    #global ns_winds
+    #ns_winds = np.zeros((16, 4), dtype=np.float32)
 
     now = datetime.now()
     date_time = now.strftime("%Y-%m-%d %H:%M:%S")
@@ -184,21 +184,18 @@ def cycle_model(ds, title, output_dir):
 
 def cycle_raob(ds, switch, title, output_dir):
     '''
-    Function processes specifically for radiosonde data
-
-    @param ds: xarray dataset containing radiosonde data. Here we assume that the dataset only contains
+        Function processes radiosonde data. It assumes you might have one whole year of data, with 00Z and 12Z
+        soundings. However, if you have less than one year of data, like one month, will still work.
+        Could easily be modified to handle multiple years of data.
+    :param ds: xarray dataset containing radiosonde data. Here we assume that the dataset only contains
                one year of data at most. But we don't check. Would be easy to just let program go
                on and plot any number of days of data.
-    @param year: string of year (yyyy)
-    @param month: string of month (mm)
-    @param title: string title of plot
-    @param output_dir: string, output directory
-    @return:
+    :param switch: should be either 'm' for mandatory pressure levels, or 's' for significant wind levels
+    :param title: Prefix title of plot, the date will be added automatically.
+    :param output_dir: where the png file is stored
+    :return:
     '''
 
-    # need a global variables to store wind speeds between calls
-    global ns_winds
-    ns_winds = np.zeros((16, 4), dtype=np.float32)
     year = ds.time.dt.year # https://docs.xarray.dev/en/latest/user-guide/time-series.html (see section on datetime components)
     yr = year[0].values
     months, start_days, end_days, num_days = get_dates(yr)
@@ -971,8 +968,8 @@ def process_file(infile, option, output_dir, title):
             cycle_raob(ds, switch, title, output_dir)
 
         else:
-            logging.error("Raob dataset does not have the right file type, will exit")
-            print("Raob dataset does not have the right file type, will exit")
+            logging.error("You selected an option with Radiosonde data, but your dataset does not have the right file type (.cdf), will exit")
+            print("You selected an optionwith Radiosonde data, but your dataset does not have the right file type (.cdf), will exit")
             sys.exit(-1)
     else:
         print(f"Processing era data: {infile} with option {option}")
@@ -1061,13 +1058,8 @@ def plt_0012Z_windrose(ds, title, output_dir):
     # https://stackoverflow.com/questions/72657415/fix-futurewarning-related-to-the-pandas-append-function
     df2 = pd.concat([df2, pd.DataFrame(frames2)], axis=0, ignore_index=True)
 
-    # Here we use numpy's histogram program to bin wind observations into 16 quadrants
-    bins = np.arange(- (180 / nbins), 360 + (180 / nbins), 360 / nbins)
 
-    n1, bins = np.histogram(df1.wd, bins=bins)
-    n2, bins = np.histogram(df2.wd, bins=bins)
-
-    # now check for calm events
+    # check for calm events
     for cols in range(0, nlevels):
         dir1 = df1.loc[cols, ('wd')]
         dir2 = df2.loc[cols, ('wd')]
@@ -1163,14 +1155,13 @@ def plt_raob(ds, switch, title, output):
     if rows == 0:
         return
 
-    nbins = 16
-    quadrant0_threshold = 360 - (180 / nbins)
+    #nbins = 16
+    #quadrant0_threshold = 360 - (180 / nbins)
+    #bins = np.arange(- (180 / nbins), 360 + (180 / nbins), 360 / nbins)
 
-    bins = np.arange(- (180 / nbins), 360 + (180 / nbins), 360 / nbins)
-
-    n1, bins = np.histogram(df1.wd, bins=bins)
-    n2, bins = np.histogram(df2.wd, bins=bins)
-
+    # np.histogram can bin data,but we don't use this here now.
+    #n1, bins = np.histogram(df1.wd, bins=bins)
+    #n2, bins = np.histogram(df2.wd, bins=bins)
     # ns_total 2d array of 16 different wind quadrants and 5 wind speed ranges
     #ns_total = np.zeros((16, 5), dtype=np.int64)
 
